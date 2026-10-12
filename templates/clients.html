@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FF LIKE API — Client Panel</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clients.css') }}" />
+</head>
+<body data-panel="client">
+
+<canvas id="matrix"></canvas>
+<div class="grid-overlay"></div>
+<div class="scanlines"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="layout">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🔥</div>
+      <div class="brand-text">
+        <h1>FF LIKE API</h1>
+        <p id="brandSub">CLIENT PORTAL</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Account</div>
+      <button class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-view="keys">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        My Keys
+      </button>
+
+      <!-- Credit Use — API Clients only (JS will show/hide) -->
+      <button class="nav-item" data-view="credit" id="navCredit" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 6v2M12 16v2"/></svg>
+        Credit Use
+      </button>
+
+      <button class="nav-item" data-view="activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        Activity
+      </button>
+
+      <div class="nav-label">System</div>
+      <button class="nav-item" data-view="account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Account Info
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">—</span>
+          <span class="user-role" id="userRole">user</span>
+        </div>
+      </div>
+      <button class="btn-logout" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="main">
+
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="topbar-title">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSub">Your account overview</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-icon" id="refreshBtn" title="Refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <span class="status-pill" id="statusPill">
+          <span class="pulse-dot"></span>
+          <span>Active</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- ==================== VIEW: DASHBOARD ==================== -->
+    <section class="view active" id="view-dashboard">
+
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h2>Welcome back, <span class="gradient-text" id="welcomeName">User</span> 👋</h2>
+          <p id="welcomeSub">Here's your account overview</p>
+        </div>
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+      </div>
+
+      <!-- Stat cards (Bug 1: no Like Limit for API clients) -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent:#22d3ee">
+          <div class="stat-head">
+            <span class="stat-label">API Credits Left</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statCreditsLeft">—</div>
+          <div class="stat-sub" id="statCreditsSub">—</div>
+        </div>
+
+        <div class="stat-card" style="--accent:#22c55e">
+          <div class="stat-head">
+            <span class="stat-label">Days Remaining</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          </div>
+          <div class="stat-value" id="statDays">—</div>
+          <div class="stat-sub">until expiry</div>
+        </div>
+
+        <div class="stat-card" style="--accent:#f59e0b">
+          <div class="stat-head">
+            <span class="stat-label">Total Requests</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          </div>
+          <div class="stat-value" id="statTotalReq">—</div>
+          <div class="stat-sub">today</div>
+        </div>
+
+        <div class="stat-card" style="--accent:#8b5cf6">
+          <div class="stat-head">
+            <span class="stat-label">Active Jobs</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+          </div>
+          <div class="stat-value" id="statJobs">—</div>
+          <div class="stat-sub" id="statJobsSub">boost + auto</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions card (Bug 2: replaces Like Key card) -->
+      <div class="panel" id="quickActionsPanel">
+        <div class="panel-head">
+          <div class="panel-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="quick-grid">
+          <button class="quick-card" data-goto-credit="like">
+            <div class="qc-icon qc-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div class="qc-body">
+              <strong>Send Like</strong>
+              <span>Manual like to any UID</span>
+            </div>
+          </button>
+          <button class="quick-card" data-goto-credit="boost">
+            <div class="qc-icon qc-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <div class="qc-body">
+              <strong>Boost Like</strong>
+              <span>Milestone-based job</span>
+            </div>
+          </button>
+          <button class="quick-card" data-goto-credit="auto">
+            <div class="qc-icon qc-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div class="qc-body">
+              <strong>Auto Like</strong>
+              <span>Duration-based job</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activity REMOVED (Bug 3) -->
+    </section>
+
+    <!-- ==================== VIEW: MY KEYS ==================== -->
+    <section class="view" id="view-keys">
+
+      <!-- API Key card (always visible) -->
+      <div class="key-card cyan-accent" id="apiKeyCard">
+        <div class="key-card-head">
+          <div class="key-card-title">
+            <div class="panel-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777z"/></svg></div>
+            <div>
+              <h3>API Key</h3>
+              <p class="key-sub">Subscription API access</p>
+            </div>
+          </div>
+          <span class="mini-badge cyan" id="apiKeyBadge">—</span>
+        </div>
+        <div id="apiKeyDetail">
+          <div class="empty-state">No API key assigned</div>
+        </div>
+      </div>
+
+      <!-- Use Like card (Bug 6: appears after first like use) -->
+      <div class="key-card pink-accent" id="useLikeCard" style="display:none">
+        <div class="key-card-head">
+          <div class="key-card-title">
+            <div class="panel-icon pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <div>
+              <h3>Use Like</h3>
+              <p class="key-sub">Recent like activity</p>
+            </div>
+          </div>
+          <span class="mini-badge pink">STATUS</span>
+        </div>
+        <div id="useLikeDetail">
+          <div class="empty-state">No likes sent yet</div>
+        </div>
+      </div>
+
+      <!-- Use Boost Like card (appears after first job) -->
+      <div class="key-card amber-accent" id="useBoostCard" style="display:none">
+        <div class="key-card-head">
+          <div class="key-card-title">
+            <div class="panel-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <div>
+              <h3>Use Boost Like</h3>
+              <p class="key-sub">Active boost jobs</p>
+            </div>
+          </div>
+          <span class="mini-badge warn" id="boostJobCount">0</span>
+        </div>
+        <div id="useBoostDetail">
+          <div class="empty-state">No boost jobs yet</div>
+        </div>
+      </div>
+
+      <!-- Use Auto Like card (appears after first job) -->
+      <div class="key-card violet-accent" id="useAutoCard" style="display:none">
+        <div class="key-card-head">
+          <div class="key-card-title">
+            <div class="panel-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+            <div>
+              <h3>Use Auto Like</h3>
+              <p class="key-sub">Active auto jobs</p>
+            </div>
+          </div>
+          <span class="mini-badge violet" id="autoJobCount">0</span>
+        </div>
+        <div id="useAutoDetail">
+          <div class="empty-state">No auto jobs yet</div>
+        </div>
+      </div>
+
+      <!-- Like Usage History REMOVED (Bug 5) -->
+    </section>
+
+    <!-- ==================== VIEW: CREDIT USE (API Clients only) ==================== -->
+    <section class="view" id="view-credit">
+
+      <!-- Section 1: Use Like -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <h3>Use Like</h3>
+          <span class="mini-badge cyan" id="creditUseBadge">—</span>
+        </div>
+        <form class="credit-form" id="creditLikeForm">
+          <div class="form-row">
+            <div class="field">
+              <label>Player UID</label>
+              <input type="text" id="clUid" placeholder="1234567890" required />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <div class="input-with-icon">
+                <input type="text" id="clRegion" list="creditRegionList" placeholder="Type or pick region" />
+                <span class="field-icon" id="clRegionLock" title="Locked to key region" style="display:none">🔒</span>
+              </div>
+              <datalist id="creditRegionList">
+                <option value="AG">Bangladesh</option>
+                <option value="IND">India</option>
+                <option value="NX">US / Brazil</option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label>Your Key (locked)</label>
+              <input type="text" id="clKey" disabled />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary full-width">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Send Like
+          </button>
+          <div id="clResponse"></div>
+        </form>
+      </div>
+
+      <!-- Section 2: Use Boost Like -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+          <h3>Use Boost Like</h3>
+          <span class="mini-badge warn">DAILY AUTO JOB</span>
+        </div>
+        <form class="credit-form" id="creditBoostForm">
+          <div class="form-row form-row-4">
+            <div class="field">
+              <label>Player UID</label>
+              <input type="text" id="cbUid" placeholder="1234567890" required />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <div class="input-with-icon">
+                <input type="text" id="cbRegion" list="creditRegionList" placeholder="Type or pick region" />
+                <span class="field-icon" id="cbRegionLock" style="display:none">🔒</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Target Likes</label>
+              <input type="number" id="cbAddLikes" placeholder="1000" min="1" required />
+            </div>
+            <div class="field">
+              <label>Your Key (locked)</label>
+              <input type="text" id="cbKey" disabled />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary full-width">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Create Boost Job
+          </button>
+          <div id="cbResponse"></div>
+        </form>
+        <div class="hint-row">💡 System reads current likes and auto-calculates target = current + add_likes.</div>
+      </div>
+
+      <!-- Section 3: Use Auto Like -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></div>
+          <h3>Use Auto Like</h3>
+          <span class="mini-badge violet">DURATION JOB</span>
+        </div>
+        <form class="credit-form" id="creditAutoForm">
+          <div class="form-row form-row-4">
+            <div class="field">
+              <label>Player UID</label>
+              <input type="text" id="caUid" placeholder="1234567890" required />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <div class="input-with-icon">
+                <input type="text" id="caRegion" list="creditRegionList" placeholder="Type or pick region" />
+                <span class="field-icon" id="caRegionLock" style="display:none">🔒</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Duration (days)</label>
+              <input type="number" id="caDuration" placeholder="30" min="1" required />
+            </div>
+            <div class="field">
+              <label>Your Key (locked)</label>
+              <input type="text" id="caKey" disabled />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary full-width">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Create Auto Job
+          </button>
+          <div id="caResponse"></div>
+        </form>
+        <div class="hint-row">💡 Auto like sent daily until expiry. Duration cannot exceed key's remaining days.</div>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW: ACTIVITY ==================== -->
+    <section class="view" id="view-activity">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8"/></svg></div>
+          <h3>My Activity</h3>
+          <div class="flex-spacer"></div>
+          <button class="btn-ghost" id="refreshActivity" style="width:auto;height:auto;padding:8px 12px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6"/></svg>
+          </button>
+        </div>
+        <div id="activityList" class="logs-list">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW: ACCOUNT ==================== -->
+    <section class="view" id="view-account">
+      <div class="cols-2">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <h3>Account Info</h3>
+          </div>
+          <div class="info-list">
+            <div class="info-row"><span>Username</span><span id="accName">—</span></div>
+            <div class="info-row"><span>Role</span><span id="accRole">—</span></div>
+            <div class="info-row"><span>Status</span><span id="accStatus">—</span></div>
+            <div class="info-row"><span>Member Since</span><span id="accCreated">—</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></div>
+            <h3>Background Theme</h3>
+            <span class="mini-badge cyan" id="currentThemeLabel">matrix</span>
+          </div>
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <h3>Session</h3>
+          </div>
+          <div class="info-list">
+            <div class="info-row"><span>Session</span><span>Active</span></div>
+            <div class="info-row"><span>API Host</span><span>Secure</span></div>
+            <div class="info-row"><span>Panel Version</span><span>v1.0.0</span></div>
+            <div class="info-row"><span>Game Version</span><span>OB55</span></div>
+          </div>
+          <div class="divider"></div>
+          <button class="btn-secondary full-width" id="logoutBtn2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            Logout
+          </button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <h3>How to Use</h3>
+        </div>
+        <div class="howto-grid">
+          <div class="howto-item">
+            <div class="howto-num">1</div>
+            <div>
+              <strong>Credit Use tab</strong>
+              <p>Send likes, boost jobs, and auto jobs from a single place.</p>
+            </div>
+          </div>
+          <div class="howto-item">
+            <div class="howto-num">2</div>
+            <div>
+              <strong>Region lock</strong>
+              <p>Your key only works for its assigned region (or ALL).</p>
+            </div>
+          </div>
+          <div class="howto-item">
+            <div class="howto-num">3</div>
+            <div>
+              <strong>Credits</strong>
+              <p>1 API call = 1 credit. Resets at 12:00 AM UTC.</p>
+            </div>
+          </div>
+          <div class="howto-item">
+            <div class="howto-num">4</div>
+            <div>
+              <strong>Auto terminate</strong>
+              <p>If key expires or credit limit hits, all jobs auto-terminate.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<div class="loader" id="loader">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <p id="loaderText">Loading…</p>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalBody">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="modalCancel">Cancel</button>
+      <button class="btn-danger" id="modalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/themes.js') }}"></script>
+<script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+<script src="{{ url_for('static', filename='js/clients.js') }}"></script>
+</body>
+</html>

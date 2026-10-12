@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FF LIKE API — Admin Terminal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+</head>
+
+<body data-panel="admin">
+
+  <canvas id="matrix"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="scanlines"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🔥</div>
+        <div class="brand-text">
+          <h1>FF LIKE API</h1>
+          <p>ADMIN TERMINAL</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-label">Overview</div>
+        <button class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" />
+            <rect x="14" y="3" width="7" height="5" />
+            <rect x="14" y="12" width="7" height="9" />
+            <rect x="3" y="16" width="7" height="5" />
+          </svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-view="like">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Like
+        </button>
+        <button class="nav-item" data-view="logs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M4 4h16v16H4z" />
+            <path d="M8 8h8M8 12h8M8 16h5" />
+          </svg>
+          Activity Logs
+        </button>
+
+        <div class="nav-label">Management</div>
+        <button class="nav-item" data-view="users">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Users
+        </button>
+        <button class="nav-item" data-view="apikeys">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path
+              d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+          </svg>
+          API Keys
+        </button>
+        <button class="nav-item" data-view="likekeys">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          Like Keys
+        </button>
+
+        <div class="nav-label">Jobs</div>
+        <button class="nav-item" data-view="boost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          Boost Like
+        </button>
+        <button class="nav-item" data-view="auto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M23 4v6h-6M1 20v-6h6" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
+          Auto Like
+        </button>
+
+        <div class="nav-label">System</div>
+        <button class="nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="user-avatar" id="userAvatar">S</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">—</span>
+            <span class="user-role" id="userRole">—</span>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <path d="M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="main">
+
+      <header class="topbar">
+        <button class="hamburger" id="hamburger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
+        <div class="topbar-title">
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSub">System overview</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-icon" id="refreshBtn" title="Refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M23 4v6h-6M1 20v-6h6" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          </button>
+          <span class="status-pill" id="statusPill">
+            <span class="pulse-dot"></span>
+            <span id="statusText">Online</span>
+          </span>
+        </div>
+      </header>
+
+      <!-- ==================== VIEW: DASHBOARD ==================== -->
+      <section class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card" style="--accent:#22d3ee">
+            <div class="stat-head">
+              <span class="stat-label">Accounts</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statAccounts">—</div>
+            <div class="stat-sub">total users</div>
+          </div>
+
+          <div class="stat-card" style="--accent:#8b5cf6">
+            <div class="stat-head">
+              <span class="stat-label">API Keys</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statApiKeys">—</div>
+            <div class="stat-sub" id="statApiKeysSub">—</div>
+          </div>
+
+          <div class="stat-card" style="--accent:#ec4899">
+            <div class="stat-head">
+              <span class="stat-label">Like Keys</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statLikeKeys">—</div>
+            <div class="stat-sub" id="statLikeKeysSub">—</div>
+          </div>
+
+          <div class="stat-card" style="--accent:#22c55e">
+            <div class="stat-head">
+              <span class="stat-label">Likes Today</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statLikesToday">—</div>
+            <div class="stat-sub" id="statLikesSub">—</div>
+          </div>
+
+          <div class="stat-card" style="--accent:#f59e0b">
+            <div class="stat-head">
+              <span class="stat-label">Boost Active</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statBoost">—</div>
+            <div class="stat-sub">running jobs</div>
+          </div>
+
+          <div class="stat-card" style="--accent:#06b6d4">
+            <div class="stat-head">
+              <span class="stat-label">Auto Active</span>
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 4v6h-6M1 20v-6h6" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg></div>
+            </div>
+            <div class="stat-value" id="statAuto">—</div>
+            <div class="stat-sub">running jobs</div>
+          </div>
+        </div>
+
+        <div class="cols-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg></div>
+              <h3>Scheduler</h3>
+            </div>
+            <div id="schedulerBox">
+              <div class="empty-state">Loading…</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg></div>
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="quick-actions">
+              <button class="quick-btn" data-goto="apikeys">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Generate API Key
+              </button>
+              <button class="quick-btn" data-goto="likekeys">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Generate Like Key
+              </button>
+              <button class="quick-btn" data-goto="users">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Create User
+              </button>
+              <button class="quick-btn" data-goto="boost">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                New Boost Job
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== VIEW: LIKE ==================== -->
+      <section class="view" id="view-like">
+        <div class="cols-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg></div>
+              <h3>Send Likes (Owner Direct)</h3>
+            </div>
+            <form class="form-grid" id="ownerLikeForm">
+              <div class="field">
+                <label>Player UID</label>
+                <input type="text" id="ownerLikeUid" placeholder="1234567890" required />
+              </div>
+              <div class="field">
+                <label>Region</label>
+                <select id="ownerLikeRegion">
+                  <option value="AG">AG — Bangladesh</option>
+                  <option value="IND">IND — India</option>
+                  <option value="NX">NX — US / Brazil</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Owner Key (locked)</label>
+                <input type="text" id="ownerLikeKey" disabled style="opacity:.6;cursor:not-allowed" />
+              </div>
+              <button type="submit" class="btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+                Send Likes
+              </button>
+            </form>
+            <div class="hint-row">💡 Uses OWNER_KEY from .env — no credits deducted</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M4 4h16v16H4z" />
+                  <path d="M8 8h8M8 12h8" />
+                </svg></div>
+              <h3>Response</h3>
+            </div>
+            <div id="ownerLikeResult">
+              <div class="empty-state">No response yet</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== VIEW: USERS ==================== -->
+      <section class="view" id="view-users">
+
+        <!-- Create Admin (owner only) -->
+        <div class="panel" id="createAdminPanel" style="display:none">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <path d="M20 8v6M23 11h-6" />
+              </svg></div>
+            <h3>Create Admin</h3>
+            <span class="mini-badge pink">OWNER ONLY</span>
+          </div>
+          <form class="form-grid" id="adminCreateForm">
+            <div class="field">
+              <label>Admin Username</label>
+              <input type="text" id="newAdminName" placeholder="e.g. admin2" required />
+            </div>
+            <div class="field">
+              <label>Admin Password</label>
+              <input type="text" id="newAdminPass" placeholder="strong password" required />
+            </div>
+            <div class="field">
+              <label>Admin Key (optional)</label>
+              <div class="input-with-icon">
+                <input type="text" id="newAdminKey" placeholder="FF-API-... or click refresh" />
+                <button type="button" class="field-icon-btn" id="adminKeyRefresh" title="Generate random API key">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Create Admin
+            </button>
+          </form>
+          <div class="hint-row">💡 Leave key empty → admin binds at first login. Click 🔄 → auto-generate a new key.</div>
+        </div>    <!-- 🔥🔥🔥 CLOSING DIV -->
+
+        <!-- Info panel for admins (non-owner) -->
+        <div class="panel" id="adminInfoPanel" style="display:none">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg></div>
+            <h3>Note</h3>
+          </div>
+          <p style="font-size:12.5px;color:var(--dim);font-family:var(--mono);line-height:1.6">
+            ℹ️ Users self-register. Give them an API/Like key from the <strong>Keys</strong> panel.
+            They login with username + password + key (key binds automatically).
+            You can suspend/delete users below.
+          </p>
+        </div>
+
+        <!-- All Users table -->
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+                <path d="M8 8h8M8 12h8" />
+              </svg></div>
+            <h3>All Users</h3>
+            <span class="badge" id="userCount">0</span>
+            <div class="flex-spacer"></div>
+            <button class="btn-ghost" id="refreshUsers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="usersTable" class="table-wrap">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==================== VIEW: API KEYS ==================== -->
+      <section class="view" id="view-apikeys">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777z" />
+              </svg></div>
+            <h3>Generate API Key</h3>
+          </div>
+          <form class="form-grid" id="apiKeyForm">
+            <div class="field">
+              <label>Credits Per Day</label>
+              <input type="number" id="apiCredits" placeholder="empty = unlimited" min="1" />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <select id="apiRegion">
+                <option value="ALL">🌍 ALL — every server</option>
+                <option value="AG">🇧🇩 AG — Bangladesh</option>
+                <option value="IND">🇮🇳 IND — India</option>
+                <option value="NX">🌎 NX — US / Brazil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Duration (days)</label>
+              <input type="number" id="apiDuration" value="30" min="1" required />
+            </div>
+            <button type="submit" class="btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Generate
+            </button>
+          </form>
+          <div class="hint-row">💡 Empty credits = UNLIMITED · Region = restrict which server the key can call
+          </div>
+        </div>
+
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+              </svg></div>
+            <h3>Active API Keys</h3>
+            <span class="badge" id="apiKeysCount">0</span>
+            <div class="flex-spacer"></div>
+            <button class="btn-ghost" id="refreshApiKeys">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="apiKeysTable" class="table-wrap">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VIEW: LIKE KEYS ==================== -->
+      <section class="view" id="view-likekeys">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg></div>
+            <h3>Generate Like Key</h3>
+          </div>
+          <form class="form-grid" id="likeKeyForm">
+            <div class="field">
+              <label>Per UID Per Day</label>
+              <input type="number" id="likePerUid" value="5" min="1" required />
+            </div>
+            <div class="field">
+              <label>Duration (days)</label>
+              <input type="number" id="likeDuration" value="30" min="1" required />
+            </div>
+            <button type="submit" class="btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Generate
+            </button>
+          </form>
+          <div class="hint-row">💡 Each UID can be liked N times per day with this key</div>
+        </div>
+
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+              </svg></div>
+            <h3>Active Like Keys</h3>
+            <span class="badge" id="likeKeysCount">0</span>
+            <div class="flex-spacer"></div>
+            <button class="btn-ghost" id="refreshLikeKeys">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="likeKeysTable" class="table-wrap">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VIEW: BOOST ==================== -->
+      <section class="view" id="view-boost">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg></div>
+            <h3>New Boost Job</h3>
+          </div>
+          <form class="form-grid" id="boostForm">
+            <div class="field">
+              <label>Player UID</label>
+              <input type="text" id="boostUid" placeholder="1234567890" required />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <select id="boostRegion">
+                <option value="AG">AG — Bangladesh</option>
+                <option value="IND">IND — India</option>
+                <option value="NX">NX — US/Brazil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Likes to Add</label>
+              <input type="number" id="boostAddLikes" placeholder="1000" min="1" required />
+            </div>
+            <button type="submit" class="btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Create Job
+            </button>
+          </form>
+          <div class="hint-row">💡 System reads current likes and auto-calculates target = current + add_likes.</div>
+        </div>
+
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+              </svg></div>
+            <h3>Boost Jobs</h3>
+            <span class="badge" id="boostCount">0</span>
+            <div class="flex-spacer"></div>
+            <button class="btn-ghost" id="refreshBoost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="boostTable" class="table-wrap">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VIEW: AUTO ==================== -->
+      <section class="view" id="view-auto">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg></div>
+            <h3>New Auto Like Job</h3>
+          </div>
+          <form class="form-grid" id="autoForm">
+            <div class="field">
+              <label>Player UID</label>
+              <input type="text" id="autoUid" placeholder="1234567890" required />
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <select id="autoRegion">
+                <option value="AG">AG — Bangladesh</option>
+                <option value="IND">IND — India</option>
+                <option value="NX">NX — US/Brazil</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Duration (days)</label>
+              <input type="number" id="autoDuration" value="30" min="1" required />
+            </div>
+            <button type="submit" class="btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Create Job
+            </button>
+          </form>
+          <div class="hint-row">💡 Auto like sent daily until expiry. No UID lock.</div>
+        </div>
+
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+              </svg></div>
+            <h3>Auto Jobs</h3>
+            <span class="badge" id="autoCount">0</span>
+            <div class="flex-spacer"></div>
+            <button class="btn-ghost" id="refreshAuto">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="autoTable" class="table-wrap">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VIEW: LOGS ==================== -->
+      <section class="view" id="view-logs">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16v16H4z" />
+                <path d="M8 8h8M8 12h8" />
+              </svg></div>
+            <h3>Activity Logs</h3>
+            <div class="flex-spacer"></div>
+            <select id="logFilter" class="mini-select">
+              <option value="">All actions</option>
+              <option value="like">Like</option>
+              <option value="login">Login</option>
+              <option value="boost_run">Boost Run</option>
+              <option value="boost_complete">Boost Complete</option>
+              <option value="auto_run">Auto Run</option>
+              <option value="auto_expired">Auto Expired</option>
+              <option value="key_generate">Key Generate</option>
+              <option value="user_create">User Create</option>
+            </select>
+            <button class="btn-ghost" id="refreshLogs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 4v6h-6M1 20v-6h6" />
+              </svg>
+            </button>
+          </div>
+          <div id="logsList" class="logs-list">
+            <div class="empty-state">Loading…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VIEW: SETTINGS ==================== -->
+      <section class="view" id="view-settings">
+        <div class="cols-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg></div>
+              <h3>Bot Settings</h3>
+              <div class="flex-spacer"></div>
+              <button class="btn-ghost" id="refreshBots">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M23 4v6h-6M1 20v-6h6" />
+                </svg>
+              </button>
+            </div>
+            <div id="botSettingsList">
+              <div class="empty-state">Loading…</div>
+            </div>
+            <div class="divider"></div>
+            <div class="field" style="margin-bottom:14px">
+              <label>Custom Broadcast Message</label>
+              <textarea id="broadcastMessage" class="broadcast-textarea" placeholder="Type message to broadcast to all Telegram + Discord channels…" rows="3"></textarea>
+            </div>
+            <button class="btn-primary full-width" id="broadcastSendBtn" style="margin-bottom:8px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+              Send Broadcast
+            </button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg></div>
+              <h3>System Info</h3>
+            </div>
+            <div class="info-list">
+              <div class="info-row"><span>Version</span><span>v1.0.0</span></div>
+              <div class="info-row"><span>Game Version</span><span>OB55</span></div>
+              <div class="info-row"><span>Region Pool</span><span>AG · IND · NX</span></div>
+              <div class="info-row"><span>Scheduler TZ</span><span>UTC</span></div>
+              <div class="info-row"><span>Daily Run</span><span>00:00 UTC</span></div>
+              <div class="info-row"><span>Cleanup</span><span>every 5 min</span></div>
+              <div class="info-row"><span>Your Role</span><span id="infoRole">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel mt">
+          <div class="panel-head">
+            <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></div>
+            <h3>Background Theme</h3>
+            <span class="mini-badge cyan" id="currentThemeLabel">matrix</span>
+          </div>
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts"></div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="loader-box">
+      <div class="spinner"></div>
+      <p id="loaderText">Processing…</p>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <h3 id="modalTitle">Confirm</h3>
+      <p id="modalBody">Are you sure?</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalCancel">Cancel</button>
+        <button class="btn-danger" id="modalConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/themes.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+
+</html>
